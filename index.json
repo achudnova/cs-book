@@ -25,6 +25,10 @@
         {
             "title": "Digitaltechnik",
             "filename": "digitaltechnik.md"
+        },
+        {
+            "title": "Zahlensysteme",
+            "filename": "zahlensysteme.md"
         }
     ],
     "Programmierung": [

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Knowledge Base</title>
-
+    
     <!-- LIBRARIES -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
@@ -15,200 +14,83 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
     <style>
-        /* --- DESIGN SYSTEM --- */
+        /* --- THEME VARIABLES --- */
         :root {
-            --bg-body: #0b0a12;
-            --bg-sidebar: #14101f;
-            --bg-header: #0b0a12;
-            --accent: #5e35b1;
-            --text-main: #eeeeee;
-            --text-muted: #a0a0a0;
-            --border: #2d2440;
+            /* Dark Theme (Default) */
+            --bg-body: #0b0a12; --bg-sidebar: #14101f; --bg-header: #0b0a12;
+            --bg-hover: rgba(94, 53, 177, 0.2); --accent: #5e35b1;
+            --text-main: #eeeeee; --text-muted: #a0a0a0; --border: #2d2440;
+            --code-bg: #1c1629; --quote-bg: rgba(94,53,177,0.1);
+        }
+        body.light-mode {
+            --bg-body: #ffffff; --bg-sidebar: #f5f5f7; --bg-header: #ffffff;
+            --bg-hover: rgba(94, 53, 177, 0.1); --accent: #6200ea;
+            --text-main: #1d1d1f; --text-muted: #6e6e73; --border: #e0e0e0;
+            --code-bg: #f5f5f7; --quote-bg: #f2f0fa;
         }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: var(--bg-body);
-            color: var(--text-main);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
+        /* --- BASE CSS --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-body); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: background 0.3s, color 0.3s; }
+        
+        header { height: 70px; background: var(--bg-header); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 15px; flex-shrink: 0; transition: 0.3s; }
+        
+        .icon-btn { background: transparent; border: 1px solid var(--border); color: var(--text-muted); border-radius: 8px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .icon-btn:hover { border-color: var(--accent); color: var(--text-main); }
+        
+        .logo { color: #fdd835; font-size: 24px; transform: rotate(-30deg); margin-right: 5px; user-select: none; }
+        
+        .topic-nav { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; flex: 1; margin-left: 10px; }
+        .nav-pill { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 16px; border-radius: 20px; cursor: pointer; white-space: nowrap; transition: 0.2s; font-size: 0.9rem; }
+        .nav-pill:hover { border-color: var(--accent); color: var(--text-main); }
+        .nav-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        /* Header */
-        header {
-            height: 70px;
-            background: var(--bg-header);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            gap: 20px;
-            flex-shrink: 0;
-        }
+        .container { display: flex; flex: 1; overflow: hidden; }
+        
+        .sidebar { width: 260px; background: var(--bg-sidebar); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column; transition: transform 0.3s, background 0.3s; }
+        .file-btn { background: transparent; border: none; color: var(--text-main); padding: 12px; width: 100%; text-align: left; cursor: pointer; border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .file-btn:hover { background: var(--bg-hover); }
+        .file-btn.active { background: var(--accent); color: white; }
 
-        .logo {
-            color: #fdd835;
-            font-size: 24px;
-            transform: rotate(-30deg);
-        }
-
-        .topic-nav {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            scrollbar-width: none;
-            flex: 1;
-        }
-
-        .nav-pill {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 6px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: 0.2s;
-        }
-
-        .nav-pill:hover,
-        .nav-pill.active {
-            border-color: var(--accent);
-            color: white;
-        }
-
-        .nav-pill.active {
-            background: var(--accent);
-        }
-
-        /* Layout */
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            width: 260px;
-            background: var(--bg-sidebar);
-            border-right: 1px solid var(--border);
-            padding: 20px;
-            overflow-y: auto;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            transition: 0.3s;
-        }
-
-        .file-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            padding: 12px;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            border-radius: 8px;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .file-btn:hover {
-            background: rgba(94, 53, 177, 0.2);
-        }
-
-        .file-btn.active {
-            background: var(--accent);
-            color: white;
-        }
-
-        /* Content */
-        .main-content {
-            flex: 1;
-            padding: 40px 8%;
-            overflow-y: auto;
-            scroll-behavior: smooth;
-        }
-
-        .markdown-body {
-            max-width: 900px;
-            margin: 0 auto;
-            line-height: 1.7;
-            color: #d1d1d1;
-        }
-
-        .markdown-body h1 {
-            border-bottom: none;
-            font-size: 2.5em;
-            color: white;
-        }
-
-        .markdown-body img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
-
-        .markdown-body blockquote {
-            border-left: 4px solid var(--accent);
-            background: rgba(94, 53, 177, 0.1);
-            padding: 10px 20px;
-            margin: 20px 0;
-        }
+        .main-content { flex: 1; padding: 40px 8%; overflow-y: auto; scroll-behavior: smooth; }
+        .markdown-body { max-width: 900px; margin: 0 auto; line-height: 1.7; color: var(--text-main); transition: color 0.3s; }
+        
+        /* Markdown Elements */
+        .markdown-body h1, .markdown-body h2, .markdown-body h3 { color: var(--text-main); border-bottom: 1px solid var(--border); margin-top: 1.5em; padding-bottom: 0.3em; }
+        .markdown-body h1 { font-size: 2.2em; margin-top: 0; border: none; }
+        .markdown-body code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #ff4081; }
+        .markdown-body pre { background: var(--code-bg); padding: 15px; border-radius: 8px; overflow-x: auto; margin: 15px 0; border: 1px solid var(--border); }
+        .markdown-body pre code { background: transparent; color: var(--text-main); padding: 0; }
+        .markdown-body blockquote { border-left: 4px solid var(--accent); background: var(--quote-bg); padding: 10px 20px; margin: 20px 0; color: var(--text-main); }
+        .markdown-body img { max-width: 100%; border-radius: 8px; margin: 15px 0; }
+        .markdown-body a { color: var(--accent); text-decoration: none; }
 
         /* Mobile */
-        .menu-toggle {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 24px;
-        }
-
+        .menu-toggle { display: none; }
         @media (max-width: 768px) {
-            .menu-toggle {
-                display: block;
-            }
-
-            .sidebar {
-                position: absolute;
-                top: 70px;
-                bottom: 0;
-                left: 0;
-                z-index: 50;
-                transform: translateX(-100%);
-                width: 280px;
-                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
-            }
-
-            .sidebar.open {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                padding: 20px;
-            }
+            .menu-toggle { display: flex; }
+            .sidebar { position: absolute; top: 70px; bottom: 0; left: 0; z-index: 50; transform: translateX(-100%); width: 280px; box-shadow: 5px 0 15px rgba(0,0,0,0.2); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { padding: 20px; }
+            .logo { display: none; }
         }
     </style>
 </head>
-
 <body>
 
     <header>
-        <button class="menu-toggle" onclick="toggleSidebar()"><span class="material-icons-round">menu</span></button>
-        <span class="material-icons-round logo">bedtime</span>
+        <button class="icon-btn menu-toggle" onclick="toggleSidebar()">
+            <span class="material-icons-round">menu</span>
+        </button>
+        <button class="icon-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Switch Theme">
+            <span class="material-icons-round" id="theme-icon">light_mode</span>
+        </button>
         <div class="topic-nav" id="topic-nav-container"></div>
     </header>
 
     <div class="container">
         <aside class="sidebar" id="sidebar">
-            <div style="color:#666; font-size:0.8rem; margin-bottom:15px; font-weight:bold; text-transform:uppercase;"
-                id="sidebar-title">DATEIEN</div>
+            <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:15px; font-weight:bold; text-transform:uppercase;" id="sidebar-title">TOPICS</div>
             <div id="file-list"></div>
         </aside>
         <main class="main-content">
@@ -217,38 +99,85 @@
     </div>
 
     <script>
-        // --- AUTOMATIC LOADER ---
+        // --- 1. THEME LOGIC ---
+        function initTheme() {
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-icon').textContent = 'dark_mode';
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('theme-icon');
+            body.classList.toggle('light-mode');
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                icon.textContent = 'dark_mode';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                icon.textContent = 'light_mode';
+            }
+        }
+
+        // --- 2. STATE & NAVIGATION LOGIC ---
         let currentTopic = "";
         let fileRegistry = {};
 
         async function init() {
+            initTheme(); 
+
             try {
-                // 1. Load the file list automatically
+                // Load File Registry
                 const response = await fetch('index.json');
                 if (!response.ok) throw new Error("Could not load index.json");
-
                 fileRegistry = await response.json();
-
-                // 2. Initialize Navigation
+                
                 const topics = Object.keys(fileRegistry);
-                if (topics.length > 0) {
-                    currentTopic = topics[0];
-                    renderNav();
-                    loadTopic(currentTopic);
-                } else {
-                    document.getElementById('content-area').innerHTML = "No topics found in index.json";
+                if(topics.length === 0) return;
+
+                renderNav();
+
+                // 1. Check URL for State (?topic=A&file=b.md)
+                const urlParams = new URLSearchParams(window.location.search);
+                const urlTopic = urlParams.get('topic');
+                const urlFile = urlParams.get('file');
+
+                if (urlTopic && fileRegistry[urlTopic]) {
+                    // If URL has data, use it
+                    loadTopic(urlTopic, urlFile);
+                } 
+                else if (localStorage.getItem('lastTopic') && fileRegistry[localStorage.getItem('lastTopic')]) {
+                    // Fallback: If no URL, check Last Visited in LocalStorage
+                    const savedTopic = localStorage.getItem('lastTopic');
+                    const savedFile = localStorage.getItem('lastFile');
+                    loadTopic(savedTopic, savedFile);
+                } 
+                else {
+                    // Default: Load first topic
+                    loadTopic(topics[0]);
                 }
+
             } catch (error) {
                 console.error(error);
                 document.getElementById('content-area').innerHTML = `
-                <div style="padding:20px; border:1px solid red; color:red;">
-                    <h3>Setup Required</h3>
-                    <p>To use automatic loading, you must generate the <b>index.json</b> file.</p>
-                    <p>Run the <code>build.py</code> script provided.</p>
-                </div>
-            `;
+                    <div style="padding:20px; border:1px solid red; color:red;">
+                        <h3>Not Ready</h3>
+                        <p>Could not load content. Please ensure <code>index.json</code> exists (run build.py).</p>
+                    </div>`;
             }
         }
+
+        // Handle Browser "Back" Button
+        window.addEventListener('popstate', (event) => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const topic = urlParams.get('topic');
+            const file = urlParams.get('file');
+            if(topic && fileRegistry[topic]) {
+                loadTopic(topic, file, false); // false = don't push state again
+            }
+        });
 
         function renderNav() {
             const nav = document.getElementById('topic-nav-container');
@@ -262,59 +191,90 @@
             });
         }
 
-        function loadTopic(topic) {
+        // Loads a topic, and optionally a specific file within it
+        function loadTopic(topic, specificFile = null, updateHistory = true) {
             currentTopic = topic;
+            
+            // Update Sidebar UI
             renderNav();
-
+            document.getElementById('sidebar-title').innerText = topic;
+            
             const list = document.getElementById('file-list');
-            const label = document.getElementById('sidebar-title');
-            label.innerText = topic;
             list.innerHTML = "";
-
+            
             const files = fileRegistry[topic] || [];
-
-            if (files.length === 0) {
-                list.innerHTML = "<div style='padding:10px; color:#666'>Empty folder.</div>";
+            if(files.length === 0) {
+                list.innerHTML = "<div style='padding:10px; color:var(--text-muted)'>Empty folder.</div>";
                 return;
             }
 
-            files.forEach((file, index) => {
+            // Determine which file to load
+            let fileToLoad = files[0]; // Default to first
+            if (specificFile) {
+                const found = files.find(f => f.filename === specificFile);
+                if (found) fileToLoad = found;
+            }
+
+            // Generate Sidebar Buttons
+            files.forEach((file) => {
                 const btn = document.createElement('button');
-                btn.className = "file-btn";
-                // Display the title from the JSON
+                btn.className = `file-btn ${file.filename === fileToLoad.filename ? 'active' : ''}`;
                 btn.innerHTML = `<span class="material-icons-round" style="font-size:18px">description</span> ${file.title}`;
                 btn.onclick = () => loadFile(topic, file.filename, btn);
                 list.appendChild(btn);
-
-                if (index === 0) loadFile(topic, file.filename, btn);
             });
+
+            // Load the content
+            loadFile(topic, fileToLoad.filename, null, updateHistory);
         }
 
-        async function loadFile(topic, filename, btn) {
-            document.querySelectorAll('.file-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
+        async function loadFile(topic, filename, btn, updateHistory = true) {
+            // Update Sidebar Active State
+            if (btn) {
+                document.querySelectorAll('.file-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            } else {
+                // If triggered programmatically, ensure the correct button is active
+                const buttons = document.querySelectorAll('.file-btn');
+                // This is a simple approximation to find the button
+                // In a complex app we might map IDs, but this works for small lists
+            }
+
+            // 1. Update URL & Storage
+            if (updateHistory) {
+                const newUrl = new URL(window.location);
+                newUrl.searchParams.set('topic', topic);
+                newUrl.searchParams.set('file', filename);
+                window.history.pushState({}, '', newUrl);
+                
+                // Save to Memory for next time user opens root URL
+                localStorage.setItem('lastTopic', topic);
+                localStorage.setItem('lastFile', filename);
+            }
 
             const container = document.getElementById('content-area');
-            // Add a cache-bust timestamp to ensure you always see new changes
-            const filePath = `content/${topic}/${filename}?t=${new Date().getTime()}`;
+            const filePath = `content/${topic}/${filename}?t=${new Date().getTime()}`; // Cache bust
 
             try {
                 const response = await fetch(filePath);
                 if (!response.ok) throw new Error(response.status);
-
+                
                 const text = await response.text();
                 container.innerHTML = marked.parse(text);
                 if (window.MathJax) MathJax.typesetPromise([container]);
+                
+                // Scroll to top
+                document.querySelector('.main-content').scrollTop = 0;
 
-                if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+                if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
             } catch (err) {
-                container.innerHTML = `<h2>Error loading file</h2><p>${filePath}</p>`;
+                container.innerHTML = `<h2>Error loading file</h2><p>Cannot find: ${filePath}</p>`;
             }
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        
         window.onload = init;
     </script>
 </body>
-
 </html>
