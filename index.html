@@ -25,10 +25,11 @@
             --text-main: #eeeeee; 
             --text-title: #d1c4e9; /* NEW: Lavender for Titles in Dark Mode */
             --text-muted: #a0a0a0; 
-            --border: #2d2440;
+            --border: #4a445c; /* Changed for more visibility */
             --code-bg: #1c1629; 
             --quote-bg: rgba(94,53,177,0.1);
             --modal-bg: #1c1629; 
+            --dropdown-bg: #14101f;
         }
 
         /* Light Theme (Violet Toned) */
@@ -41,10 +42,11 @@
             --text-main: #2e2a36;     
             --text-title: #4c1890;    /* NEW: Deep Dark Violet for Titles in Light Mode */
             --text-muted: #797485;    
-            --border: #e6e1f0;        
+            --border: #c9c3d5; /* Changed for more visibility */       
             --code-bg: #f4f1fa;       
             --quote-bg: #f0ebfa;      
             --modal-bg: #ffffff;
+            --dropdown-bg: #ffffff;
         }
 
         /* --- BASE CSS --- */
@@ -81,10 +83,87 @@
         
         .logo { color: #fdd835; font-size: 24px; transform: rotate(-30deg); margin-right: 5px; user-select: none; }
         
-        .topic-nav { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; flex: 1; margin-left: 10px; }
-        .nav-pill { background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 16px; border-radius: 20px; cursor: pointer; white-space: nowrap; transition: 0.2s; font-size: 0.9rem; }
-        .nav-pill:hover { border-color: var(--accent); color: var(--text-main); }
-        .nav-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+        /* --- VERTICAL DROPDOWN LOGIC --- */
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+            flex: 1;
+            margin-left: 10px;
+            max-width: 300px; 
+        }
+
+        /* The Trigger Button (Styled like your rounded boxes) */
+        .dropdown-trigger {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px 20px;
+            border-radius: 20px; /* Rounded Pill Shape */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        .dropdown-trigger:hover {
+            border-color: var(--accent);
+            color: var(--text-main);
+        }
+        
+        /* When dropdown is open */
+        .dropdown-trigger.active-state {
+            background: var(--bg-hover);
+            border-color: var(--accent);
+            color: var(--text-main);
+        }
+
+        /* The Vertical List (Hidden by default) */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 115%; 
+            left: 0;
+            width: 100%;
+            background-color: var(--dropdown-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 100;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        /* Items inside the vertical list */
+        .dropdown-item {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-muted);
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: 0.2s;
+        }
+
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: var(--bg-hover); color: var(--text-main); }
+        .dropdown-item.active { background: var(--accent); color: white; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* Pushes the ? button to the far right */
         .spacer { margin-left: auto; }
@@ -155,6 +234,7 @@
             .sidebar.open { transform: translateX(0); }
             .main-content { padding: 20px; }
             .logo { display: none; }
+            .dropdown-container { max-width: 100%; margin-right: 10px; }
         }
     </style>
 </head>
@@ -171,8 +251,18 @@
             <span class="material-icons-round" id="theme-icon">light_mode</span>
         </button>
         
-        <!-- Nav Pills -->
-        <div class="topic-nav" id="topic-nav-container"></div>
+        <!-- CUSTOM VERTICAL DROPDOWN -->
+        <div class="dropdown-container">
+            <button class="dropdown-trigger" onclick="toggleDropdown()" id="dropdown-btn">
+                <span id="current-topic-name">Select Topic</span>
+                <span class="material-icons-round">expand_more</span>
+            </button>
+            
+            <!-- The Vertical List -->
+            <div class="dropdown-menu" id="dropdown-menu">
+                <!-- JS will fill this -->
+            </div>
+        </div>
 
         <!-- Spacer to push credentials to the right -->
         <div class="spacer"></div>
@@ -260,7 +350,23 @@
             }
         }
 
-        // --- 3. STATE & CONTENT LOGIC ---
+        // --- 3. DROPDOWN LOGIC ---
+        function toggleDropdown() {
+            const menu = document.getElementById("dropdown-menu");
+            const btn = document.getElementById("dropdown-btn");
+            menu.classList.toggle("show");
+            btn.classList.toggle("active-state");
+        }
+
+        // Close dropdown if clicking outside
+        window.addEventListener('click', function(e) {
+            if (!document.querySelector('.dropdown-container').contains(e.target)) {
+                document.getElementById("dropdown-menu").classList.remove("show");
+                document.getElementById("dropdown-btn").classList.remove("active-state");
+            }
+        });
+
+        // --- 4. STATE & CONTENT LOGIC ---
         let currentTopic = "";
         let fileRegistry = {};
 
@@ -275,7 +381,7 @@
                 const topics = Object.keys(fileRegistry);
                 if(topics.length === 0) return;
 
-                renderNav();
+                renderNavDropdown();
 
                 const urlParams = new URLSearchParams(window.location.search);
                 const urlTopic = urlParams.get('topic');
@@ -307,21 +413,32 @@
             }
         });
 
-        function renderNav() {
-            const nav = document.getElementById('topic-nav-container');
-            nav.innerHTML = "";
+        function renderNavDropdown() {
+            const menu = document.getElementById('dropdown-menu');
+            menu.innerHTML = "";
             Object.keys(fileRegistry).forEach(topic => {
-                const btn = document.createElement('button');
-                btn.className = `nav-pill ${topic === currentTopic ? 'active' : ''}`;
-                btn.innerText = topic;
-                btn.onclick = () => loadTopic(topic);
-                nav.appendChild(btn);
+                const item = document.createElement('button');
+                item.className = "dropdown-item";
+                item.innerText = topic;
+                item.onclick = () => {
+                    loadTopic(topic);
+                    toggleDropdown(); 
+                };
+                menu.appendChild(item);
             });
         }
 
         function loadTopic(topic, specificFile = null, updateHistory = true) {
             currentTopic = topic;
-            renderNav();
+            
+            // Update Dropdown Button Text
+            document.getElementById('current-topic-name').innerText = topic;
+            
+            // Update Active State in Dropdown
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.toggle('active', item.innerText === topic);
+            });
+
             document.getElementById('sidebar-title').innerText = topic;
             
             const list = document.getElementById('file-list');
