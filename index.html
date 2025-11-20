@@ -39,7 +39,7 @@
             --bg-hover: rgba(124, 77, 255, 0.15); 
             --accent: #7d00ea;        
             --text-main: #2e2a36;     
-            --text-title: #2a0a55;    /* NEW: Deep Dark Violet for Titles in Light Mode */
+            --text-title: #4c1890;    /* NEW: Deep Dark Violet for Titles in Light Mode */
             --text-muted: #797485;    
             --border: #e6e1f0;        
             --code-bg: #f4f1fa;       
@@ -195,16 +195,34 @@
     </div>
 
     <!-- MODAL POPUP -->
+    <!-- MODAL POPUP -->
     <div id="credModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
             
-            <h2>About</h2>
-            <p><strong>Knowledge Base</strong></p>
-            <p>Created by Alina Chudnova</p>
-            <br>
-            <p>Version 1.0</p>
-            <p><a href="https://github.com/achudnova/cs-book" target="_blank">View on GitHub</a></p>
+            <h2 style="margin-bottom: 5px;">Knowledge Base</h2>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Computer Science Notes</p>
+            
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+
+            <p><strong>Created by:</strong><br>Alina Chudnova</p>
+            
+            <div style="margin: 20px 0; font-size: 0.85rem; background: var(--bg-hover); padding: 10px; border-radius: 6px; text-align: left;">
+                <strong>Disclaimer:</strong><br>
+                This site contains personal study notes and summaries. 
+                There is no guarantee of correctness or completeness. 
+                Not official university material.
+            </div>
+
+            <p style="font-size: 0.9rem;">
+                <a href="https://github.com/achudnova/cs-book" target="_blank" style="display: inline-flex; align-items: center; gap: 5px;">
+                    <span class="material-icons-round" style="font-size: 16px;">code</span> Source Code
+                </a>
+            </p>
+            
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">
+                &copy; 2025 Alina Chudnova
+            </p>
         
         </div>
     </div>
