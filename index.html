@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base</title>
+
+    <!-- LIBRARIES -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']] }, svg: { fontCache: 'global' } };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        /* --- DESIGN SYSTEM --- */
+        :root {
+            --bg-body: #0b0a12;
+            --bg-sidebar: #14101f;
+            --bg-header: #0b0a12;
+            --accent: #5e35b1;
+            --text-main: #eeeeee;
+            --text-muted: #a0a0a0;
+            --border: #2d2440;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Header */
+        header {
+            height: 70px;
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 20px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            color: #fdd835;
+            font-size: 24px;
+            transform: rotate(-30deg);
+        }
+
+        .topic-nav {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            flex: 1;
+        }
+
+        .nav-pill {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+
+        .nav-pill:hover,
+        .nav-pill.active {
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .nav-pill.active {
+            background: var(--accent);
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+        }
+
+        .file-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            padding: 12px;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-btn:hover {
+            background: rgba(94, 53, 177, 0.2);
+        }
+
+        .file-btn.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Content */
+        .main-content {
+            flex: 1;
+            padding: 40px 8%;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .markdown-body {
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.7;
+            color: #d1d1d1;
+        }
+
+        .markdown-body h1 {
+            border-bottom: none;
+            font-size: 2.5em;
+            color: white;
+        }
+
+        .markdown-body img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .markdown-body blockquote {
+            border-left: 4px solid var(--accent);
+            background: rgba(94, 53, 177, 0.1);
+            padding: 10px 20px;
+            margin: 20px 0;
+        }
+
+        /* Mobile */
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                position: absolute;
+                top: 70px;
+                bottom: 0;
+                left: 0;
+                z-index: 50;
+                transform: translateX(-100%);
+                width: 280px;
+                box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <button class="menu-toggle" onclick="toggleSidebar()"><span class="material-icons-round">menu</span></button>
+        <span class="material-icons-round logo">bedtime</span>
+        <div class="topic-nav" id="topic-nav-container"></div>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar" id="sidebar">
+            <div style="color:#666; font-size:0.8rem; margin-bottom:15px; font-weight:bold; text-transform:uppercase;"
+                id="sidebar-title">DATEIEN</div>
+            <div id="file-list"></div>
+        </aside>
+        <main class="main-content">
+            <div id="content-area" class="markdown-body"></div>
+        </main>
+    </div>
+
+    <script>
+        // --- AUTOMATIC LOADER ---
+        let currentTopic = "";
+        let fileRegistry = {};
+
+        async function init() {
+            try {
+                // 1. Load the file list automatically
+                const response = await fetch('index.json');
+                if (!response.ok) throw new Error("Could not load index.json");
+
+                fileRegistry = await response.json();
+
+                // 2. Initialize Navigation
+                const topics = Object.keys(fileRegistry);
+                if (topics.length > 0) {
+                    currentTopic = topics[0];
+                    renderNav();
+                    loadTopic(currentTopic);
+                } else {
+                    document.getElementById('content-area').innerHTML = "No topics found in index.json";
+                }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('content-area').innerHTML = `
+                <div style="padding:20px; border:1px solid red; color:red;">
+                    <h3>Setup Required</h3>
+                    <p>To use automatic loading, you must generate the <b>index.json</b> file.</p>
+                    <p>Run the <code>build.py</code> script provided.</p>
+                </div>
+            `;
+            }
+        }
+
+        function renderNav() {
+            const nav = document.getElementById('topic-nav-container');
+            nav.innerHTML = "";
+            Object.keys(fileRegistry).forEach(topic => {
+                const btn = document.createElement('button');
+                btn.className = `nav-pill ${topic === currentTopic ? 'active' : ''}`;
+                btn.innerText = topic;
+                btn.onclick = () => loadTopic(topic);
+                nav.appendChild(btn);
+            });
+        }
+
+        function loadTopic(topic) {
+            currentTopic = topic;
+            renderNav();
+
+            const list = document.getElementById('file-list');
+            const label = document.getElementById('sidebar-title');
+            label.innerText = topic;
+            list.innerHTML = "";
+
+            const files = fileRegistry[topic] || [];
+
+            if (files.length === 0) {
+                list.innerHTML = "<div style='padding:10px; color:#666'>Empty folder.</div>";
+                return;
+            }
+
+            files.forEach((file, index) => {
+                const btn = document.createElement('button');
+                btn.className = "file-btn";
+                // Display the title from the JSON
+                btn.innerHTML = `<span class="material-icons-round" style="font-size:18px">description</span> ${file.title}`;
+                btn.onclick = () => loadFile(topic, file.filename, btn);
+                list.appendChild(btn);
+
+                if (index === 0) loadFile(topic, file.filename, btn);
+            });
+        }
+
+        async function loadFile(topic, filename, btn) {
+            document.querySelectorAll('.file-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const container = document.getElementById('content-area');
+            // Add a cache-bust timestamp to ensure you always see new changes
+            const filePath = `content/${topic}/${filename}?t=${new Date().getTime()}`;
+
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) throw new Error(response.status);
+
+                const text = await response.text();
+                container.innerHTML = marked.parse(text);
+                if (window.MathJax) MathJax.typesetPromise([container]);
+
+                if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+            } catch (err) {
+                container.innerHTML = `<h2>Error loading file</h2><p>${filePath}</p>`;
+            }
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        window.onload = init;
+    </script>
+</body>
+
+</html>

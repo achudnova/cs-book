@@ -1,0 +1,36 @@
+{
+    "LaTeX": [
+        {
+            "title": "Cheat Sheet",
+            "filename": "cheat_sheet.md"
+        }
+    ],
+    "Propädeutikum": [
+        {
+            "title": "Algorithmen",
+            "filename": "algorithmen.md"
+        }
+    ],
+    "AnaLinA": [
+        {
+            "title": "Analysis 1",
+            "filename": "analysis_1.md"
+        },
+        {
+            "title": "My Custom File",
+            "filename": "test.md"
+        }
+    ],
+    "Rechnerorganisation": [
+        {
+            "title": "Digitaltechnik",
+            "filename": "digitaltechnik.md"
+        }
+    ],
+    "Programmierung": [
+        {
+            "title": "Datenstrukturen",
+            "filename": "datenstrukturen.md"
+        }
+    ]
+}
