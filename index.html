@@ -570,6 +570,9 @@
             for (let heading of headings) {
                 if (heading.textContent.trim() === headingText.trim()) {
                     heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Update URL hash
+                    const hash = headingText.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+                    window.location.hash = hash;
                     break;
                 }
             }
@@ -598,8 +601,25 @@
                 if (!response.ok) throw new Error(response.status);
                 const text = await response.text();
                 container.innerHTML = marked.parse(text);
-                if (window.MathJax) MathJax.typesetPromise([container]);
-                document.querySelector('.main-content').scrollTop = 0;
+                if (window.MathJax) await MathJax.typesetPromise([container]);
+                
+                // Scroll to heading if hash exists
+                if (window.location.hash) {
+                    const hash = window.location.hash.substring(1);
+                    const headings = document.querySelectorAll('.markdown-body h2, .markdown-body h3');
+                    for (let heading of headings) {
+                        const headingHash = heading.textContent.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+                        if (headingHash === hash) {
+                            setTimeout(() => {
+                                heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            }, 100);
+                            break;
+                        }
+                    }
+                } else {
+                    document.querySelector('.main-content').scrollTop = 0;
+                }
+                
                 if(window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
             } catch (err) {
                 container.innerHTML = `<h2>Error</h2><p>Cannot find: ${filePath}</p>`;
