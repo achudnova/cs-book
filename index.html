@@ -176,6 +176,20 @@
         .file-btn:hover { background: var(--bg-hover); }
         .file-btn.active { background: var(--accent); color: white; }
 
+        /* Table of Contents */
+        .file-item { margin-bottom: 5px; }
+        .file-header { display: flex; align-items: center; gap: 5px; }
+        .file-header .file-btn { flex: 1; margin-bottom: 0; }
+        .toc-toggle { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; transition: 0.2s; flex-shrink: 0; }
+        .toc-toggle:hover { background: var(--bg-hover); color: var(--text-main); }
+        .toc-toggle.active { transform: rotate(180deg); }
+        .toc-list { display: none; padding-left: 28px; margin-top: 5px; }
+        .toc-list.show { display: block; }
+        .toc-item { padding: 6px 12px; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; border-radius: 4px; transition: 0.2s; margin-bottom: 3px; }
+        .toc-item:hover { background: var(--bg-hover); color: var(--text-main); }
+        .toc-item.h2 { padding-left: 12px; }
+        .toc-item.h3 { padding-left: 24px; font-size: 0.85rem; }
+
         .main-content { flex: 1; padding: 40px 8%; overflow-y: auto; scroll-behavior: smooth; }
         .markdown-body { max-width: 900px; margin: 0 auto; line-height: 1.7; color: var(--text-main); transition: color 0.3s; }
         
@@ -475,14 +489,90 @@
             }
 
             files.forEach((file) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                
+                const fileHeader = document.createElement('div');
+                fileHeader.className = 'file-header';
+                
                 const btn = document.createElement('button');
                 btn.className = `file-btn ${file.filename === fileToLoad.filename ? 'active' : ''}`;
                 btn.innerHTML = `<span class="material-icons-round" style="font-size:18px">description</span> ${file.title}`;
                 btn.onclick = () => loadFile(topic, file.filename, btn);
-                list.appendChild(btn);
+                
+                const tocToggle = document.createElement('button');
+                tocToggle.className = 'toc-toggle';
+                tocToggle.innerHTML = '<span class="material-icons-round" style="font-size:18px">expand_more</span>';
+                tocToggle.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleTOC(fileItem, tocToggle, topic, file.filename);
+                };
+                
+                fileHeader.appendChild(btn);
+                fileHeader.appendChild(tocToggle);
+                fileItem.appendChild(fileHeader);
+                
+                list.appendChild(fileItem);
             });
 
             loadFile(topic, fileToLoad.filename, null, updateHistory);
+        }
+
+        async function toggleTOC(fileItem, toggleBtn, topic, filename) {
+            const existingTOC = fileItem.querySelector('.toc-list');
+            
+            if (existingTOC) {
+                existingTOC.classList.toggle('show');
+                toggleBtn.classList.toggle('active');
+                return;
+            }
+            
+            // Load and parse file to extract headings
+            const filePath = `content/${topic}/${filename}`;
+            try {
+                const response = await fetch(filePath);
+                const text = await response.text();
+                
+                const tocList = document.createElement('div');
+                tocList.className = 'toc-list show';
+                
+                const lines = text.split('\n');
+                lines.forEach(line => {
+                    const h2Match = line.match(/^##\s+(.+)$/);
+                    const h3Match = line.match(/^###\s+(.+)$/);
+                    
+                    if (h2Match) {
+                        const item = document.createElement('div');
+                        item.className = 'toc-item h2';
+                        item.textContent = h2Match[1];
+                        item.onclick = () => scrollToHeading(h2Match[1]);
+                        tocList.appendChild(item);
+                    } else if (h3Match) {
+                        const item = document.createElement('div');
+                        item.className = 'toc-item h3';
+                        item.textContent = h3Match[1];
+                        item.onclick = () => scrollToHeading(h3Match[1]);
+                        tocList.appendChild(item);
+                    }
+                });
+                
+                if (tocList.children.length > 0) {
+                    fileItem.appendChild(tocList);
+                    toggleBtn.classList.add('active');
+                }
+            } catch (err) {
+                console.error('Failed to load TOC:', err);
+            }
+        }
+
+        function scrollToHeading(headingText) {
+            const headings = document.querySelectorAll('.markdown-body h2, .markdown-body h3');
+            for (let heading of headings) {
+                if (heading.textContent.trim() === headingText.trim()) {
+                    heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    break;
+                }
+            }
         }
 
         async function loadFile(topic, filename, btn, updateHistory = true) {
