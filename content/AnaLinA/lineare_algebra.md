@@ -2,6 +2,8 @@
 
 ## Lineare Abbildungen
 
+### Linearität
+
 Es seien V1 und V2 zwei Vektorräume. Eine Abbildung $f: V_1 \longrightarrow V_2$ heißt *linear*, falls für alle Vektoren
 $u,v \in V_1$ und für jedes $\lambda \in \mathbb{R}$ gilt:
 
@@ -9,7 +11,7 @@ $u,v \in V_1$ und für jedes $\lambda \in \mathbb{R}$ gilt:
 >
 > (2) Homogenität: $f(\lambda u) = \lambda f(u)$
 
-Beweisschema:
+**Beweisschema**:
 
 1. Festlegung beliebiger Elemente aus dem Definitionsbereich: *Seien $u, v \in V$ beliebige Vektoren und sei $\lambda \in K$ ein beliebiger Skalar.*
 2. Nachweis der Additivität: *zusammenfassen $\rightarrow$ anwenden $\rightarrow$ sortieren $\rightarrow$ trennen*
@@ -26,7 +28,8 @@ Beweisschema:
 > - Produkte von Variablen vorkommen ($x\cdot y$); aber Produkte mit Zahlen sind in Ordnung!
 > - Funktionen wie $\sin(x), e^x, ln(x)$ vorkommen
 
----
+
+### Bild und Kern 
 
 Zwei wichtige Mengen (bei der Betrachtung linearer Abbildungen) sind das **Bild** und der **Kern**.
 
@@ -44,7 +47,7 @@ $\Rightarrow$ *die Menge aller Vektoren im Zielraum $W$, die ein Urbild in $V$ b
 
 > Die Spalten der Matrix anschauen. Spaltenvektoren von A, die zu einem Pivotelement in ZSF gehören, bilden eine Basis des Bildes. $\rightarrow dim(Bild(A))=Rang(A)$
 
-### Dimensionsformel
+### Dimensionsformel (Injektivität / Surjektivität)
 
 **Folgerungen aus der Dimensionsformel:**
 Sei $f: V \rightarrow W$ linear. Dann gilt:
