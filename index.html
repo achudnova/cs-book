@@ -513,6 +513,9 @@
                 fileItem.appendChild(fileHeader);
                 
                 list.appendChild(fileItem);
+                
+                // Auto-load TOC for all files
+                toggleTOC(fileItem, tocToggle, topic, file.filename);
             });
 
             loadFile(topic, fileToLoad.filename, null, updateHistory);
@@ -559,6 +562,21 @@
                 if (tocList.children.length > 0) {
                     fileItem.appendChild(tocList);
                     toggleBtn.classList.add('active');
+                    // Auto-load TOC for all files on page load
+                    setTimeout(() => {
+                        document.querySelectorAll('.file-item').forEach(item => {
+                            const toggle = item.querySelector('.toc-toggle');
+                            if (toggle && !toggle.classList.contains('active')) {
+                                const fileBtn = item.querySelector('.file-btn');
+                                // Extract filename from button's onclick
+                                const onclickStr = fileBtn.getAttribute('onclick') || '';
+                                const match = onclickStr.match(/loadFile\('([^']+)',\s*'([^']+)'/);
+                                if (match) {
+                                    toggleTOC(item, toggle, match[1], match[2]);
+                                }
+                            }
+                        });
+                    }, 100);
                 }
             } catch (err) {
                 console.error('Failed to load TOC:', err);
