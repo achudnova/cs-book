@@ -1,24 +1,30 @@
 {
+    "Propädeutikum": [
+        {
+            "title": "Algorithmen",
+            "filename": "algorithmen.md"
+        },
+        {
+            "title": "Test",
+            "filename": "test.md"
+        }
+    ],
     "LaTeX": [
         {
             "title": "Cheat Sheet",
             "filename": "cheat_sheet.md"
         }
     ],
-    "Propädeutikum": [
+    "Programmierung": [
         {
-            "title": "Algorithmen",
-            "filename": "algorithmen.md"
+            "title": "Datenstrukturen",
+            "filename": "datenstrukturen.md"
         }
     ],
     "AnaLinA": [
         {
-            "title": "Analysis 1",
-            "filename": "analysis_1.md"
-        },
-        {
-            "title": "My Custom File",
-            "filename": "test.md"
+            "title": "Lineare Algebra",
+            "filename": "lineare_algebra.md"
         }
     ],
     "Rechnerorganisation": [
@@ -29,12 +35,6 @@
         {
             "title": "Zahlensysteme",
             "filename": "zahlensysteme.md"
-        }
-    ],
-    "Programmierung": [
-        {
-            "title": "Datenstrukturen",
-            "filename": "datenstrukturen.md"
         }
     ]
 }
